@@ -8,6 +8,11 @@ license = {text = "MIT"}
 authors = [{name = "Jiangang Hao", email = "jianganghao@gmail.com"}]
 dependencies = ["numpy"]
 
+[project.urls]
+Homepage = "https://github.com/jgbrainstorm/gibberish-chat-detector"
+Repository = "https://github.com/jgbrainstorm/gibberish-chat-detector"
+Issues = "https://github.com/jgbrainstorm/gibberish-chat-detector/issues"
+
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
