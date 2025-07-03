@@ -1,6 +1,6 @@
 # gibberish-chat-detector
 
-`gibberish-chat-detector` is a lightweight Python package that detects gibberish or mischievous chat messages using a set of interpretable, rule-based heuristics. It is particularly useful for filtering low-quality user input in chat systems, collaborative platforms, or educational environments.
+`gibberish-chat-detector` is a lightweight Python package that detects gibberish or mischievous chat messages using a set of interpretable, rule-based heuristics. Machine learning approach generally won't work well given there are often special definition of what is considered gibberish in specific application. This detector give you full flexibility and transparence about what to detect. It is particularly useful for filtering low-quality user input in chat systems, collaborative platforms, or educational environments.
 
 ---
 
