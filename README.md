@@ -1,125 +1,99 @@
+
 # gibberish-chat-detector
 
-`gibberish-chat-detector` is a lightweight Python package that detects gibberish or mischievous chat messages using a set of interpretable, rule-based heuristics. Machine learning approach generally won't work well given there are often special definition of what is considered gibberish in specific application. This detector give you full flexibility and transparence about what to detect. It is particularly useful for filtering low-quality user input in chat systems, collaborative platforms, or educational environments.
+A simple Python package to detect gibberish or mischievous messages in chat logs using rule-based features.
 
----
+## 🔍 What It Does
 
-## 🔍 How It Works
+This package computes a set of linguistic and statistical features from a chat message and applies a customizable rule-based system to flag potentially gibberish messages.
 
-The core detection logic is based on a suite of **handcrafted textual features** and a set of **six transparent rules**. If any rule triggers, the message is flagged as **gibberish**.
-
-The detection is deterministic, fast, and doesn't rely on machine learning — making it interpretable and easily customizable.
-
----
-
-## 📥 Input and 📤 Output
-
-### Input
-
-The main function accepts a single string:
-
-```python
-detect_gibberish_chat(s: str)
-```
-
-- `s` — A chat message or short text (e.g., `"hellooooooo!!!!"`)
-
-### Output
-
-The function returns a dictionary containing:
-- A top-level `gibberish` flag: `1` (True) or `0` (False)
-- A collection of interpretable features
-
-Example:
-```python
-{
-  'gibberish': 1,
-  'repeated_letter_ratio': 0.73,
-  'repeat_punct': 8,
-  'repeat_group_ratio': 0.0,
-  'max_token_length': 12,
-  'avg_token_length': 5.2,
-  'token_count': 3,
-  'std_token_length': 2.3,
-  'total_char_count': 19,
-  'unique_char_count': 8,
-  'letter_token_ratio': 0.12,
-  'entropy_letter': 1.44,
-  'entropy_character': 2.10
-}
-```
-
----
-
-## ✨ Features Used
-
-The detector computes the following per-message features:
-
-| Feature Name               | Description |
-|---------------------------|-------------|
-| `repeated_letter_ratio`   | Ratio of repeated single characters (e.g., `aaa`, `111`) to total alphanumeric characters |
-| `repeat_group_ratio`      | Ratio of repeated character groups (e.g., `abcabcabc`) |
-| `repeat_punct`            | Count of repeated non-alphanumeric symbols (e.g., `!!!` or `???`) |
-| `letter_token_ratio`      | Ratio of alphabetic characters to all characters |
-| `token_count`             | Number of tokens (split by whitespace) |
-| `avg_token_length`        | Average length of tokens |
-| `std_token_length`        | Standard deviation of token lengths |
-| `max_token_length`        | Length of the longest token |
-| `unique_char_count`       | Count of unique non-space characters |
-| `total_char_count`        | Count of all non-space characters |
-| `entropy_letter`          | Entropy of alphabetic characters |
-| `entropy_character`       | Entropy of all characters |
-
----
-
-## ✅ Example Usage
-
-```python
-from gibberish_chat_detector import detect_gibberish_chat
-
-text = "l;kjasdf;lkjasdf;lkj!!!!"
-result = detect_gibberish_chat(text)
-
-print(result['gibberish'])
-
-```
-
----
-
-## 🛠 Customizing the Rules
-
-By default, the detector uses six interpretable rules based on the above features. For example:
-
-```python
-(repeated_letter_ratio >= 0.5 and max_token_length >= 6)
-```
-
-You can customize the rules by modifying the rule section in `detector.py`, or refactor it to load thresholds dynamically from a config file or function argument.
-
----
-
-## 📦 Installation
+## 🚀 Installation
 
 ```bash
 pip install gibberish-chat-detector
 ```
 
-Requires Python 3.7+.
+## 🧠 How It Works
 
----
+The detector extracts features such as repeated characters, punctuation patterns, token lengths, and entropy of characters and letters. These features are then checked against a list of boolean rules to determine if the message is gibberish.
 
-## 🔓 License
+## ✨ Features Used
+
+The gibberish detector uses the following features:
+
+- `repeat_letter_ratio`: Proportion of alphanumeric characters that are repeated consecutively (e.g., "aaa", "111").
+- `repeat_group_ratio`: Proportion of repeated sequences of letters or digits (e.g., "abcabc", "1212").
+- `repeat_punct`: Total count of repeated punctuation symbols (e.g., "!!!", "??!!??").
+- `letter_token_ratio`: Fraction of characters that are alphabetic (useful for spotting symbol-heavy gibberish).
+- `max_token_length`: Length of the longest token (word-like unit) in the message.
+- `avg_token_length`: Average length of tokens in the message.
+- `std_token_length`: Standard deviation of token lengths, indicating variation.
+- `count_token`: Total number of tokens (words or fragments separated by whitespace).
+- `count_total_character`: Total number of non-space characters.
+- `count_unique_character`: Number of unique characters excluding spaces.
+- `entropy_letter`: Entropy (diversity) of alphabetic characters, indicating randomness or repetitiveness.
+- `entropy_character`: Entropy of all characters, including symbols, digits, and letters.
+
+## 🧪 Example Usage
+
+```python
+from gibberish_detector import gibberish_detector
+
+text = "aaaaa!!!??"
+result = gibberish_detector(text)
+
+print(result["gibberish"])  # 1 if gibberish, 0 otherwise
+print(result)  # All feature values
+```
+
+## 🔧 Customizing Rules
+
+You can pass your own rule string to override the default logic. The rule string should be a Python-style list of boolean expressions using the feature names listed above.
+
+### Example:
+
+```python
+custom_rule = '''[
+    (repeat_letter_ratio >= 0.5 and max_token_length >= 6),
+    (repeat_punct >= 6 and count_token < 4 and max_token_length >= 10 and letter_token_ratio <= 0.1),
+    (repeat_group_ratio >= 0.5 and max_token_length >= 6),
+    (max_token_length >= 16),
+    (letter_token_ratio == 0 and max_token_length > 10 and count_token != 1),
+    (repeat_letter_ratio == 1 or repeat_group_ratio == 1)
+]'''
+
+result = gibberish_detector("aaa!!!", rule=custom_rule)
+print(result["gibberish"])
+```
+
+⚠️ **Note**: The rule string is evaluated using `eval()` within the context of the feature dictionary, and should only be used in trusted environments.
+
+## 📬 Output Format
+
+The function returns a dictionary with the following fields:
+
+```python
+{
+    "gibberish": 1,
+    "repeat_letter_ratio": 0.8,
+    "repeat_punct": 7,
+    "repeat_group_ratio": 0.6,
+    "max_token_length": 12,
+    "avg_token_length": 6.0,
+    "std_token_length": 2.3,
+    "count_token": 4,
+    "count_total_character": 20,
+    "count_unique_character": 10,
+    "letter_token_ratio": 0.3,
+    "entropy_letter": 2.5,
+    "entropy_character": 3.1
+}
+```
+
+## 🛡️ License
 
 MIT License
 
----
+## 👤 Author
 
-## 👨‍💻 Author
-
-Developed by Jiangang Hao
-
----
-
-## 💡 Contributing
-
-Got ideas for new features or more precise rules? Contributions are welcome — open a PR or issue!
+Developed by Jiangang Hao, June 2025

@@ -3,7 +3,18 @@ import math
 import numpy as np
 from collections import Counter
 
-def detect_gibberish_chat(s: str) -> int:
+# ——— your six rules ———
+default_gibberish_rule = '''[
+        (repeat_letter_ratio  >= 0.5 and max_token_length   >= 6),
+        (repeat_punct         >= 6   and count_token  < 4   and
+         max_token_length     >= 10  and letter_token_ratio <= 0.1),
+        (repeat_group_ratio   >= 0.5 and max_token_length   >= 6),
+        (max_token_length     >= 16),
+        (letter_token_ratio   == 0   and max_token_length > 10  and count_token != 1),
+        (repeat_letter_ratio  == 1   or repeat_group_ratio   == 1)
+    ]'''
+
+def gibberish_detector(s: str, rule: list=default_gibberish_rule) -> dict:
     """
     Purpose: Detect if a chat turn is gibberish using a set of rules based on some features. It return 1 if it is gibberish and 0 if not. 
 
@@ -65,19 +76,15 @@ def detect_gibberish_chat(s: str) -> int:
     else:
         entropy_character = 0.0
 
-    # ——— your six rules ———
-    rules = [
-        (repeat_letter_ratio  >= 0.5 and max_token_length   >= 6),
-        (repeat_punct         >= 6   and count_token  < 4   and
-         max_token_length     >= 10  and letter_token_ratio <= 0.1),
-        (repeat_group_ratio   >= 0.5 and max_token_length   >= 6),
-        (max_token_length     >= 16),
-        (letter_token_ratio   == 0   and max_token_length > 10  and count_token != 1),
-        (repeat_letter_ratio  == 1   or repeat_group_ratio   == 1)
-    ]
+    try:
+        rules = eval(rule)
+        return {"gibberish":int(any(rules)),"repeat_letter_ratio":repeat_letter_ratio, "repeat_punct":repeat_punct, \
+        "repeat_group_ratio":repeat_group_ratio,"max_token_length":max_token_length,"avg_token_length":avg_token_length, \
+        "count_token":count_token,"std_token_length":std_token_length, "count_total_character":count_total_character,\
+        "count_unique_character":count_unique_character, "letter_token_ratio":letter_token_ratio, \
+        "entropy_letter":entropy_letter,"entropy_character":entropy_character}
+    except:
+        return "your rule is flawed, please update it and try again!!"
 
-    return {"gibberish":int(any(rules)),"repeated_letter_ratio":repeat_letter_ratio, "repeat_punct":repeat_punct, \
-            "repeat_group_ratio":repeat_group_ratio,"max_token_length":max_token_length,"avg_token_length":avg_token_length, \
-            "token_count":count_token,"std_token_length":std_token_length, "total_char_count":count_total_character,\
-            "unique_char_count":count_unique_character, "letter_token_ratio":letter_token_ratio, \
-            "entropy_letter":entropy_letter,"entropy_character":entropy_character}
+
+    

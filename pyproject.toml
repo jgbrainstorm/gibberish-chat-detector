@@ -1,6 +1,6 @@
 [project]
 name = "gibberish-chat-detector"  # PyPI name (with hyphens)
-version = "0.1.0"
+version = "0.1.2"
 description = "Detects gibberish or mischievous chat messages/string."
 readme = "README.md"
 requires-python = ">=3.7"
